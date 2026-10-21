@@ -67,8 +67,8 @@ class HFLocalAdapter(ModelAdapter):
             merged = f"{system}\n\n{user}" if system else user
             return self.processor.apply_chat_template(self._messages(None, merged), **settings)
 
-    # ---- the interface ----
-    def ask(self, system, user, max_new_tokens=512):
+    # ---- the interface: sending (logging is done by ModelAdapter.ask) ----
+    def _ask(self, system, user, max_new_tokens):
         inputs = self._encode(system, user).to(self.model.device)
         pad_id = self.tokenizer.pad_token_id
         if pad_id is None:
