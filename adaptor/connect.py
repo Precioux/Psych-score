@@ -4,7 +4,9 @@
 # Usage:
 #   python connect.py --model Qwen/Qwen3-VL-8B-Instruct                  # strict prompt (default)
 #   python connect.py --model Qwen/Qwen3-VL-8B-Instruct --prompt paper   # exact PsychoBench wording
+#   python connect.py --model Qwen/Qwen3-VL-8B-Instruct --prompt both    # both versions, model loaded once
 #   python connect.py --model Qwen/Qwen3-VL-8B-Instruct --save           # also add it to the parser samples
+#   python connect.py --model /path/to/internvl2-5-8b --trust-remote-code   # models with their own code
 #
 # Every reply is always logged automatically to logs/<model>/<date>.jsonl (see adapters/base.py).
 
@@ -98,17 +100,22 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=os.environ.get("MODEL_PATH"),
                         help="Hugging Face model name or local folder")
-    parser.add_argument("--prompt", choices=["strict", "paper"], default="strict",
-                        help="strict = explicit answer format; paper = exact PsychoBench wording")
+    parser.add_argument("--prompt", choices=["strict", "paper", "both"], default="strict",
+                        help="strict = explicit answer format; paper = exact PsychoBench wording; "
+                             "both = ask both, loading the model only once")
     parser.add_argument("--save", action="store_true",
                         help="append the reply to samples/replies.jsonl")
+    parser.add_argument("--trust-remote-code", action="store_true",
+                        help="allow models that ship their own code (e.g. InternVL) - only for sources you trust")
     parser.add_argument("--show-prompt", action="store_true",
                         help="only print the prompt, do not load the model")
     args = parser.parse_args()
 
-    system, user = build_prompt(args.prompt)
+    versions = ["strict", "paper"] if args.prompt == "both" else [args.prompt]
     if args.show_prompt:
-        print(f"--- prompt version: {args.prompt}\n--- SYSTEM\n{system}\n--- USER\n{user}")
+        for version in versions:
+            system, user = build_prompt(version)
+            print(f"--- prompt version: {version}\n--- SYSTEM\n{system}\n--- USER\n{user}\n")
         raise SystemExit
 
     if not args.model:
@@ -117,17 +124,19 @@ if __name__ == "__main__":
     from adapters.hf_local import HFLocalAdapter   # imported here so --show-prompt needs no GPU
 
     print(f"Loading {args.model} ... (this can take a minute)")
-    llm = HFLocalAdapter(args.model)
+    llm = HFLocalAdapter(args.model, trust_remote_code=args.trust_remote_code)
 
     print("Settings used:")
     print(json.dumps(llm.info(), indent=2))
-    print(f"Prompt version: {args.prompt}")
 
-    reply = llm.ask(system, user, context={"script": "connect.py", "test": "two BFI items",
-                                           "prompt_version": args.prompt})
-    print("Model reply:")
-    print(reply)
-    print(f"(logged to {llm.log_file()})")
+    for version in versions:
+        system, user = build_prompt(version)
+        reply = llm.ask(system, user, context={"script": "connect.py", "test": "two BFI items",
+                                               "prompt_version": version})
+        print(f"\n=== Prompt version: {version}")
+        print("Model reply:")
+        print(reply)
+        if args.save:
+            save_sample(args.model, version, system, user, reply, llm.info())
 
-    if args.save:
-        save_sample(args.model, args.prompt, system, user, reply, llm.info())
+    print(f"\n(all calls logged to {llm.log_file()})")
