@@ -15,6 +15,7 @@ except ImportError:
     AutoModelForImageTextToText = None
 
 from .base import ModelAdapter
+from .quirks import apply_quirks
 
 # End-of-turn markers used by common chat formats. If the tokenizer knows one of them,
 # generation also stops there (some custom-code models don't declare it themselves).
@@ -37,6 +38,7 @@ class HFLocalAdapter(ModelAdapter):
         self.loader_name = None          # filled in by _load: which loader worked
         self.model = self._load(model_path, dtype)
         self.model.eval()
+        self.quirks_applied = apply_quirks(self.model, self.tokenizer)   # see adapters/quirks.py
         self.stop_ids = self._stop_ids()
 
     # ---- loading: try each model family until one accepts this model ----
@@ -132,6 +134,7 @@ class HFLocalAdapter(ModelAdapter):
             "loader": self.loader_name,
             "multimodal": self.is_multimodal,
             "trust_remote_code": self.trust_remote_code,
+            "quirks_applied": self.quirks_applied,
             "dtype": str(self.model.dtype),
             "device": str(self.model.device),
             "decoding": "greedy (do_sample=False)",
