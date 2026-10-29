@@ -1,0 +1,22 @@
+# models.txt - the models tested by:  python connect.py --models-file models.txt
+# One model per line: <folder or Hugging Face name> [trust_remote_code]
+# Lines starting with # are ignored. Folders that don't exist are reported as "missing".
+
+/mnt/mahdipou/models/qwen2-vl-7b
+/mnt/mahdipou/models/Qwen3-VL-8B-Instruct
+/mnt/mahdipou/models/Mistral-7B-Instruct-v0.3
+/mnt/mahdipou/models/gemma-3-4b
+/mnt/mahdipou/models/gemma-3-12b
+/mnt/mahdipou/models/Llama-3.1-8B-Instruct
+/mnt/mahdipou/models/Llama-2-7b-chat-hf
+/mnt/mahdipou/models/Llama-2-13b-chat-hf
+/mnt/mahdipou/models/internvl2-5-8b  trust_remote_code
+
+# still to download (reported as "missing" until then)
+/mnt/mahdipou/models/Qwen2-VL-2B-Instruct
+/mnt/mahdipou/models/Qwen2-7B-Instruct
+/mnt/mahdipou/models/gemma-2-9b-it
+/mnt/mahdipou/models/gemma-3-27b-it
+
+# needs 2 GPUs - test it in a 2-GPU job with models_72b.txt
+# /mnt/mahdipou/models/qwen2-vl-72b

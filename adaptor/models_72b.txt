@@ -1,0 +1,2 @@
+# Run in a 2x H200 job:  python connect.py --models-file models_72b.txt
+/mnt/mahdipou/models/qwen2-vl-72b
