@@ -1,0 +1,9 @@
+/mnt/mahdipou/models/qwen2-vl-7b
+/mnt/mahdipou/models/Qwen3-VL-8B-Instruct
+/mnt/mahdipou/models/Mistral-7B-Instruct-v0.3
+/mnt/mahdipou/models/gemma-3-4b
+/mnt/mahdipou/models/gemma-3-12b
+/mnt/mahdipou/models/Llama-3.1-8B-Instruct
+/mnt/mahdipou/models/Llama-2-7b-chat-hf
+/mnt/mahdipou/models/Llama-2-13b-chat-hf
+/mnt/mahdipou/models/internvl2-5-8b  trust_remote_code
